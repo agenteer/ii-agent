@@ -7,6 +7,8 @@ from pydantic import (
 )
 
 from ii_agent.core.config.search_config import SearchConfig
+from ii_agent.core.config.media_config import MediaConfig
+from ii_agent.core.config.audio_config import AudioConfig
 from ii_agent.core.config.llm_config import LLMConfig
 
 
@@ -18,6 +20,8 @@ class Settings(BaseModel):
 
     llm_configs: Dict[str, LLMConfig] = Field(default_factory=dict)
     search_config: SearchConfig | None = Field(default=None)
+    media_config: MediaConfig | None = Field(default=None)
+    audio_config: AudioConfig | None = Field(default=None)
 
     model_config = {
         'validate_assignment': True,

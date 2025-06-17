@@ -119,27 +119,52 @@ def get_system_tools(
             tools.append(DeepResearchTool())
         if tool_args.get("pdf", False):
             tools.append(PdfTextExtractTool(workspace_manager=workspace_manager))
-        if tool_args.get("media_generation", False) and (
-            os.environ.get("MEDIA_GCP_PROJECT_ID")
-            and os.environ.get("MEDIA_GCP_LOCATION")
-        ):
-            tools.append(ImageGenerateTool(workspace_manager=workspace_manager))
-            if tool_args.get("video_generation", False):
-                tools.extend([
-                    VideoGenerateFromTextTool(workspace_manager=workspace_manager), 
-                    VideoGenerateFromImageTool(workspace_manager=workspace_manager),
-                    LongVideoGenerateFromTextTool(workspace_manager=workspace_manager),
-                    LongVideoGenerateFromImageTool(workspace_manager=workspace_manager)
-                ])
-        if tool_args.get("audio_generation", False) and (
-            os.environ.get("OPEN_API_KEY") and os.environ.get("AZURE_OPENAI_ENDPOINT")
-        ):
-            tools.extend(
-                [
-                    AudioTranscribeTool(workspace_manager=workspace_manager),
-                    AudioGenerateTool(workspace_manager=workspace_manager),
-                ]
-            )
+        if tool_args.get("media_generation", False):
+            # Check if media config is available in settings or environment variables
+            has_media_config = False
+            if settings and settings.media_config:
+                if (settings.media_config.gcp_project_id and 
+                    settings.media_config.gcp_location):
+                    has_media_config = True
+            
+            # Fall back to environment variables
+            if not has_media_config and (
+                os.environ.get("MEDIA_GCP_PROJECT_ID") and 
+                os.environ.get("MEDIA_GCP_LOCATION")
+            ):
+                has_media_config = True
+                
+            if has_media_config:
+                tools.append(ImageGenerateTool(workspace_manager=workspace_manager, settings=settings))
+                if tool_args.get("video_generation", False):
+                    tools.extend([
+                        VideoGenerateFromTextTool(workspace_manager=workspace_manager, settings=settings), 
+                        VideoGenerateFromImageTool(workspace_manager=workspace_manager, settings=settings),
+                        LongVideoGenerateFromTextTool(workspace_manager=workspace_manager, settings=settings),
+                        LongVideoGenerateFromImageTool(workspace_manager=workspace_manager, settings=settings)
+                    ])
+        if tool_args.get("audio_generation", False):
+            # Check if audio config is available in settings or environment variables
+            has_audio_config = False
+            if settings and settings.audio_config:
+                if (settings.audio_config.openai_api_key and 
+                    settings.audio_config.azure_endpoint):
+                    has_audio_config = True
+            
+            # Fall back to environment variables
+            if not has_audio_config and (
+                os.environ.get("OPENAI_API_KEY") and 
+                os.environ.get("OPENAI_AZURE_ENDPOINT")
+            ):
+                has_audio_config = True
+                
+            if has_audio_config:
+                tools.extend(
+                    [
+                        AudioTranscribeTool(workspace_manager=workspace_manager, settings=settings),
+                        AudioGenerateTool(workspace_manager=workspace_manager, settings=settings),
+                    ]
+                )
             
         # Browser tools
         if tool_args.get("browser", False):
