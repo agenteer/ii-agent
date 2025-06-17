@@ -146,7 +146,7 @@ The generated video will be saved to the specified local path in the workspace."
         super().__init__()
         self.workspace_manager = workspace_manager
         
-        # Extract configuration from settings or fall back to environment variables
+        # Extract configuration from settings
         gcp_project_id = None
         gcp_location = None
         gcs_output_bucket = None
@@ -156,21 +156,13 @@ The generated video will be saved to the specified local path in the workspace."
             gcp_location = settings.media_config.gcp_location
             gcs_output_bucket = settings.media_config.gcs_output_bucket
             
-        # Fall back to environment variables if not in settings
-        if not gcp_project_id:
-            gcp_project_id = os.environ.get("MEDIA_GCP_PROJECT_ID")
-        if not gcp_location:
-            gcp_location = os.environ.get("MEDIA_GCP_LOCATION")
-        if not gcs_output_bucket:
-            gcs_output_bucket = os.environ.get("MEDIA_GCS_OUTPUT_BUCKET")
-            
         if not gcs_output_bucket or not gcs_output_bucket.startswith("gs://"):
             raise ValueError(
-                "GCS output bucket must be provided either in settings.media_config.gcs_output_bucket or via MEDIA_GCS_OUTPUT_BUCKET environment variable as a valid GCS URI (e.g., gs://my-bucket-name)"
+                "GCS output bucket must be provided in settings.media_config.gcs_output_bucket as a valid GCS URI (e.g., gs://my-bucket-name)"
             )
         if not gcp_project_id or not gcp_location:
             raise ValueError(
-                "GCP project ID and location must be provided either in settings.media_config or via MEDIA_GCP_PROJECT_ID and MEDIA_GCP_LOCATION environment variables."
+                "GCP project ID and location must be provided in settings.media_config"
             )
             
         self.gcs_output_bucket = gcs_output_bucket
@@ -340,7 +332,7 @@ The generated video will be saved to the specified local path in the workspace."
         super().__init__()
         self.workspace_manager = workspace_manager
         
-        # Extract configuration from settings or fall back to environment variables
+        # Extract configuration from settings
         gcp_project_id = None
         gcp_location = None
         gcs_output_bucket = None
@@ -350,23 +342,17 @@ The generated video will be saved to the specified local path in the workspace."
             gcp_location = settings.media_config.gcp_location
             gcs_output_bucket = settings.media_config.gcs_output_bucket
             
-        # Fall back to environment variables if not in settings
-        if not gcp_project_id:
-            gcp_project_id = os.environ.get("MEDIA_GCP_PROJECT_ID")
-        if not gcp_location:
-            gcp_location = os.environ.get("MEDIA_GCP_LOCATION")
-        if not gcs_output_bucket:
-            gcs_output_bucket = os.environ.get("MEDIA_GCS_OUTPUT_BUCKET")
-            
+        if not gcs_output_bucket or not gcs_output_bucket.startswith("gs://"):
+            raise ValueError(
+                "GCS output bucket must be provided in settings.media_config.gcs_output_bucket as a valid GCS URI (e.g., gs://my-bucket-name)"
+            )
         if not gcp_project_id or not gcp_location:
             raise ValueError(
-                "GCP project ID and location must be provided either in settings.media_config or via MEDIA_GCP_PROJECT_ID and MEDIA_GCP_LOCATION environment variables."
+                "GCP project ID and location must be provided in settings.media_config"
             )
-        if not gcs_output_bucket:
-            gcs_output_bucket = os.environ.get("MEDIA_GCS_OUTPUT_BUCKET", "")
             
         self.gcs_output_bucket = gcs_output_bucket
-        self.genai_client = genai.Client(
+        self.client = genai.Client(
             project=gcp_project_id, location=gcp_location, vertexai=True
         )
         self.video_model = DEFAULT_MODEL
@@ -446,7 +432,7 @@ The generated video will be saved to the specified local path in the workspace."
             if prompt:
                 generate_videos_kwargs["prompt"] = prompt
 
-            operation = self.genai_client.models.generate_videos(
+            operation = self.client.models.generate_videos(
                 **generate_videos_kwargs
             )
 
@@ -461,9 +447,9 @@ The generated video will be saved to the specified local path in the workspace."
                     )
                 time.sleep(polling_interval_seconds)
                 elapsed_time += polling_interval_seconds
-                operation = self.genai_client.operations.get(
+                operation = self.client.operations.get(
                     operation
-                )  # Use self.genai_client
+                )  # Use self.client
 
             if operation.error:
                 raise Exception(

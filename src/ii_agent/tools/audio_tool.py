@@ -48,7 +48,7 @@ Supported file formats: {", ".join(SUPPORTED_AUDIO_FORMATS)}"""
         super().__init__()
         self.workspace_manager = workspace_manager
         
-        # Extract configuration from settings or fall back to environment variables
+        # Extract configuration from settings
         openai_api_key = None
         azure_endpoint = None
         azure_api_version = None
@@ -58,13 +58,13 @@ Supported file formats: {", ".join(SUPPORTED_AUDIO_FORMATS)}"""
             azure_endpoint = settings.audio_config.azure_endpoint
             azure_api_version = settings.audio_config.azure_api_version
             
-        # Fall back to environment variables if not in settings
-        if not openai_api_key:
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not azure_endpoint:
-            azure_endpoint = os.getenv("OPENAI_AZURE_ENDPOINT")
         if not azure_api_version:
             azure_api_version = "2025-01-01-preview"  # Default value
+            
+        if not openai_api_key or not azure_endpoint:
+            raise ValueError(
+                "OpenAI API key and Azure endpoint must be provided in settings.audio_config"
+            )
             
         self.client = AzureOpenAI(
             api_key=openai_api_key,
@@ -172,7 +172,7 @@ Saves the output as an MP3 file in the workspace. Available voices: {", ".join(A
         super().__init__()
         self.workspace_manager = workspace_manager
         
-        # Extract configuration from settings or fall back to environment variables
+        # Extract configuration from settings
         openai_api_key = None
         azure_endpoint = None
         azure_api_version = None
@@ -182,13 +182,13 @@ Saves the output as an MP3 file in the workspace. Available voices: {", ".join(A
             azure_endpoint = settings.audio_config.azure_endpoint
             azure_api_version = settings.audio_config.azure_api_version
             
-        # Fall back to environment variables if not in settings
-        if not openai_api_key:
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not azure_endpoint:
-            azure_endpoint = os.getenv("OPENAI_AZURE_ENDPOINT")
         if not azure_api_version:
             azure_api_version = "2025-01-01-preview"  # Default value
+            
+        if not openai_api_key or not azure_endpoint:
+            raise ValueError(
+                "OpenAI API key and Azure endpoint must be provided in settings.audio_config"
+            )
             
         self.client = AzureOpenAI(
             api_key=openai_api_key,

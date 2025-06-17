@@ -77,7 +77,7 @@ The generated image will be saved to the specified local path in the workspace a
         super().__init__()
         self.workspace_manager = workspace_manager
         
-        # Extract configuration from settings or fall back to environment variables
+        # Extract configuration from settings
         gcp_project_id = None
         gcp_location = None
         
@@ -85,15 +85,9 @@ The generated image will be saved to the specified local path in the workspace a
             gcp_project_id = settings.media_config.gcp_project_id
             gcp_location = settings.media_config.gcp_location
             
-        # Fall back to environment variables if not in settings
-        if not gcp_project_id:
-            gcp_project_id = os.environ.get("MEDIA_GCP_PROJECT_ID")
-        if not gcp_location:
-            gcp_location = os.environ.get("MEDIA_GCP_LOCATION")
-            
         if not gcp_project_id or not gcp_location:
             raise ValueError(
-                "GCP project ID and location must be provided either in settings.media_config or via MEDIA_GCP_PROJECT_ID and MEDIA_GCP_LOCATION environment variables."
+                "GCP project ID and location must be provided in settings.media_config"
             )
 
         try:
