@@ -29,8 +29,11 @@ Project directory `{project_name}` created successfully. Application code is in 
     └── tsconfig.json           # TypeScript configuration
 ```
 IMPORTANT NOTE: This project is built with TypeScript(tsx) and Next.js App Router.
-
 Add components with `cd {project_name} && pnpx shadcn@latest add -y -o`. Import components with `@/` alias. Note, 'toast' is deprecated, use 'sonner' instead. Before editing, run `cd {project_name} && pnpm install` to install dependencies. Run `cd {project_name} && pnpm run dev` to start the dev server ASAP to catch any runtime errors. Remember that all terminal commands must be run from the project directory.
+Any database operations should be done with Prisma ORM.
+Authentication is done with NextAuth.
+Chart.js is used for charts.
+Advance animations are done with Framer Motion, Anime.js, and React Three Fiber.
 """
 
 
@@ -67,4 +70,6 @@ Project directory `{project_name}` created successfully. Application code is in 
 IMPORTANT NOTE: This project is built with TypeScript(tsx) and Vite + React.
 
 Add components with `cd {project_name} && pnpx shadcn@latest add -y -o`. Import components with `@/` alias. Note, 'toast' is deprecated, use 'sonner' instead. Before editing, run `cd {project_name} && pnpm install` to install dependencies. Run `cd {project_name} && pnpm run dev` to start the dev server ASAP to catch any runtime errors. Remember that all terminal commands must be run from the project directory. 
+Use Chart.js for charts.
+Use and install Framer Motion, Anime.js, and React Three Fiber for advance animations.
 """

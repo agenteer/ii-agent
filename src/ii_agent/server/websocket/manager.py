@@ -50,7 +50,10 @@ class ConnectionManager:
             session_id=str(session_uuid),
             workspace_mode=self.use_container_workspace,
         )
-        await workspace_manager.start_sandbox()
+        if websocket.query_params.get("session_uuid") is None:
+            await (
+                workspace_manager.start_sandbox()
+            )  # Quick fix: Manage Sandbox lifecycle
 
         # Create a new chat session for this connection
         session = ChatSession(
