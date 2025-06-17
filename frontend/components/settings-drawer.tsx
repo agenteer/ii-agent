@@ -21,9 +21,10 @@ import ApiKeysDialog from "./api-keys-dialog";
 interface SettingsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen: () => void;
 }
 
-const SettingsDrawer = ({ isOpen, onClose }: SettingsDrawerProps) => {
+const SettingsDrawer = ({ isOpen, onClose, onOpen }: SettingsDrawerProps) => {
   const { state, dispatch } = useAppContext();
   const [toolsExpanded, setToolsExpanded] = useState(true);
   const [reasoningExpanded, setReasoningExpanded] = useState(true);
@@ -362,6 +363,10 @@ const SettingsDrawer = ({ isOpen, onClose }: SettingsDrawerProps) => {
             <ApiKeysDialog
               isOpen={isApiKeysDialogOpen}
               onClose={() => setIsApiKeysDialogOpen(false)}
+              onOpen={() => {
+                setIsApiKeysDialogOpen(true);
+                onOpen();
+              }}
             />
           </div>
         </div>

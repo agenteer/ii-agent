@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAppContext } from "@/context/app-context";
+import isEmpty from "lodash/isEmpty";
 
 import {
   Dialog,
@@ -26,6 +27,7 @@ import { LLMConfig } from "@/typings/agent";
 interface ApiKeysDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen: () => void;
 }
 
 // Define available models for each provider
@@ -61,7 +63,7 @@ const PROVIDER_MODELS = {
   ],
 };
 
-const ApiKeysDialog = ({ isOpen, onClose }: ApiKeysDialogProps) => {
+const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
   const { dispatch } = useAppContext();
   const [activeTab, setActiveTab] = useState("llm-config");
   const [selectedProvider, setSelectedProvider] = useState("anthropic");
@@ -109,10 +111,16 @@ const ApiKeysDialog = ({ isOpen, onClose }: ApiKeysDialogProps) => {
       );
 
       if (!response.ok) {
+        onOpen();
         return;
       }
 
       const data = await response.json();
+
+      if (isEmpty(data.llm_configs)) {
+        onOpen();
+        return;
+      }
 
       // Update state with fetched settings
       if (data.llm_configs) {
@@ -165,6 +173,7 @@ const ApiKeysDialog = ({ isOpen, onClose }: ApiKeysDialogProps) => {
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
+      onOpen();
     } finally {
       setIsLoading(false);
     }

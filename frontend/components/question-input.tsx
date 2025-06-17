@@ -506,6 +506,7 @@ const QuestionInput = ({
         <SettingsDrawer
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
+          onOpen={() => setIsSettingsOpen(true)}
         />
       )}
 
