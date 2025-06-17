@@ -36,6 +36,7 @@ from ii_agent.prompts.system_prompt import (
     SYSTEM_PROMPT,
     SYSTEM_PROMPT_WITH_SEQ_THINKING,
 )
+from ii_agent.prompts.reviewer_system_prompt import REVIEWER_SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 
@@ -183,13 +184,14 @@ class ChatSession:
             self.enable_reviewer = init_content.tool_args.get("enable_reviewer", False)
             if self.enable_reviewer:
                 # Create reviewer agent using factory
-                self.reviewer_agent = self.agent_factory.create_reviewer_agent(
+                self.reviewer_agent = self._create_reviewer_agent(
                     client,
                     self.session_uuid,
                     self.workspace_manager,
                     self.websocket,
                     init_content.tool_args,
                     self.file_store,
+                    settings=settings,
                 )
                 
                 # Start message processor for reviewer
@@ -718,5 +720,62 @@ Please review this feedback and implement the suggested improvements to better c
         # Store the session ID in the agent for event tracking
         agent.session_id = session_id
         return agent
+    
+    def _create_reviewer_agent(
+        self,
+        client: LLMClient,
+        session_id: uuid.UUID,
+        workspace_manager: WorkspaceManager,
+        websocket: WebSocket,
+        tool_args: Dict[str, Any],
+        file_store: FileStore,
+        settings: Settings,
+    ):
+        """Create a new reviewer agent instance for a websocket connection.
+
+        Args:
+            client: LLM client instance
+            session_id: Session UUID
+            workspace_manager: Workspace manager
+            websocket: WebSocket connection
+            tool_args: Tool configuration arguments
+            file_store: File store instance
+
+        Returns:
+            Configured reviewer agent instance
+        """
+        # Setup logging
+        logger_for_agent_logs = self._setup_logger(websocket)
+
+        # Create context manager
+        context_manager = self._create_context_manager(client, logger_for_agent_logs)
+
+        # Initialize agent queue and tools
+        queue = asyncio.Queue()
+        tools = get_system_tools(
+            client=client,
+            workspace_manager=workspace_manager,
+            message_queue=queue,
+            container_id=self.config.agent_config.docker_container_id,
+            ask_user_permission=self.config.agent_config.needs_permission,
+            tool_args=tool_args,
+            settings=settings,
+        )
+
+        reviewer_agent = ReviewerAgent(
+            system_prompt=REVIEWER_SYSTEM_PROMPT,
+            client=client,
+            tools=tools,
+            workspace_manager=workspace_manager,
+            message_queue=queue,
+            logger_for_agent_logs=logger_for_agent_logs,
+            context_manager=context_manager,
+            max_output_tokens_per_turn=self.config.agent_config.max_output_tokens_per_turn,
+            max_turns=self.config.agent_config.max_turns,
+            websocket=websocket,
+            session_id=session_id,
+        )
+
+        return reviewer_agent
 
     
