@@ -11,6 +11,7 @@ from ii_agent.agents.base import BaseAgent
 from ii_agent.agents.reviewer import ReviewerAgent
 from ii_agent.core.event import RealtimeEvent, EventType
 from ii_agent.core.storage.files import FileStore
+from ii_agent.core.storage.models.settings import Settings
 from ii_agent.core.storage.settings.file_settings_store import FileSettingsStore
 from ii_agent.db.manager import Sessions, Events
 from ii_agent.llm import get_client
@@ -172,6 +173,7 @@ class ChatSession:
                 self.websocket,
                 init_content.tool_args,
                 self.file_store,
+                settings=settings,
             )
 
             # Start message processor for this session
@@ -592,6 +594,7 @@ Please review this feedback and implement the suggested improvements to better c
         websocket: WebSocket,
         tool_args: Dict[str, Any],
         file_store: FileStore,
+        settings: Settings,
     ):
         """Create a new agent instance for a websocket connection.
 
@@ -655,6 +658,7 @@ Please review this feedback and implement the suggested improvements to better c
             context_manager,
             logger_for_agent_logs,
             file_store,
+            settings,
         )
 
     def _create_agent_instance(
@@ -667,6 +671,7 @@ Please review this feedback and implement the suggested improvements to better c
         context_manager,
         logger: logging.Logger,
         file_store: FileStore,
+        settings: Settings,
     ):
         """Create the actual agent instance."""
         # Initialize agent queue and tools
@@ -678,6 +683,7 @@ Please review this feedback and implement the suggested improvements to better c
             container_id=self.config.agent_config.docker_container_id,
             ask_user_permission=self.config.agent_config.needs_permission,
             tool_args=tool_args,
+            settings=settings,
         )
 
         # Choose system prompt based on tool args
@@ -712,3 +718,5 @@ Please review this feedback and implement the suggested improvements to better c
         # Store the session ID in the agent for event tracking
         agent.session_id = session_id
         return agent
+
+    

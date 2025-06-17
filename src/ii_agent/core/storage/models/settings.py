@@ -13,7 +13,7 @@ from ii_agent.core.config.llm_config import LLMConfig
 
 class Settings(BaseModel):
     """
-    Persisted settings for OpenHands sessions
+    Persisted settings for II_AGENT sessions
     """
 
     llm_configs: Dict[str, LLMConfig] = Field(default_factory=dict)

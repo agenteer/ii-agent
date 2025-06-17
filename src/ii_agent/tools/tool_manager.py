@@ -54,12 +54,14 @@ from ii_agent.tools.pdf_tool import PdfTextExtractTool
 from ii_agent.tools.deep_research_tool import DeepResearchTool
 from ii_agent.tools.list_html_links_tool import ListHtmlLinksTool
 from ii_agent.utils.constants import TOKEN_BUDGET
+from ii_agent.core.storage.models.settings import Settings
 
 
 def get_system_tools(
     client: LLMClient,
     workspace_manager: WorkspaceManager,
     message_queue: asyncio.Queue,
+    settings: Settings,
     container_id: Optional[str] = None,
     ask_user_permission: bool = False,
     tool_args: Dict[str, Any] = None,
@@ -89,8 +91,8 @@ def get_system_tools(
 
     tools = [
         MessageTool(),
-        WebSearchTool(),
-        VisitWebpageTool(),
+        WebSearchTool(settings=settings),
+        VisitWebpageTool(settings=settings),
         StaticDeployTool(workspace_manager=workspace_manager),
         StrReplaceEditorTool(
             workspace_manager=workspace_manager, message_queue=message_queue
@@ -105,7 +107,7 @@ def get_system_tools(
         ),
         DisplayImageTool(workspace_manager=workspace_manager),
     ]
-    image_search_tool = ImageSearchTool()
+    image_search_tool = ImageSearchTool(settings=settings)
     if image_search_tool.is_available():
         tools.append(image_search_tool)
 
