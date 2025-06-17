@@ -16,6 +16,7 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip";
 import { AVAILABLE_MODELS, ToolSettings } from "@/typings/agent";
 import { useAppContext } from "@/context/app-context";
+import ApiKeysDialog from "./api-keys-dialog";
 
 interface SettingsDrawerProps {
   isOpen: boolean;
@@ -26,14 +27,15 @@ const SettingsDrawer = ({ isOpen, onClose }: SettingsDrawerProps) => {
   const { state, dispatch } = useAppContext();
   const [toolsExpanded, setToolsExpanded] = useState(true);
   const [reasoningExpanded, setReasoningExpanded] = useState(true);
+  const [isApiKeysDialogOpen, setIsApiKeysDialogOpen] = useState(false);
 
   // Get selected model from cookies on init
   useEffect(() => {
     const savedModel = Cookies.get("selected_model");
-    if (savedModel && AVAILABLE_MODELS.includes(savedModel)) {
+    if (savedModel && state.availableModels.includes(savedModel)) {
       dispatch({ type: "SET_SELECTED_MODEL", payload: savedModel });
     }
-  }, [dispatch]);
+  }, [dispatch, state.availableModels]);
 
   const isClaudeModel = useMemo(
     () => state.selectedModel?.toLowerCase().includes("claude"),
@@ -148,7 +150,7 @@ const SettingsDrawer = ({ isOpen, onClose }: SettingsDrawerProps) => {
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#35363a] border-[#ffffff0f]">
-                  {AVAILABLE_MODELS.map((model) => (
+                  {state.availableModels?.map((model) => (
                     <SelectItem key={model} value={model}>
                       {model}
                     </SelectItem>
@@ -338,6 +340,29 @@ const SettingsDrawer = ({ isOpen, onClose }: SettingsDrawerProps) => {
                 </div>
               )}
             </div>
+
+            <div className="space-y-4 pt-4 border-t border-gray-700">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-white">API Keys</h3>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsApiKeysDialogOpen(true)}
+                  className="border-[#ffffff0f]"
+                >
+                  Configure
+                </Button>
+              </div>
+              <p className="text-xs text-gray-400">
+                Configure API keys for various services like OpenAI, Anthropic,
+                and search providers.
+              </p>
+            </div>
+
+            {/* API Keys Dialog */}
+            <ApiKeysDialog
+              isOpen={isApiKeysDialogOpen}
+              onClose={() => setIsApiKeysDialogOpen(false)}
+            />
           </div>
         </div>
       </motion.div>

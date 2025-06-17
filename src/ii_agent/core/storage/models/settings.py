@@ -26,4 +26,3 @@ class Settings(BaseModel):
     model_config = {
         'validate_assignment': True,
     }
-

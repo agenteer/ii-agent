@@ -8,12 +8,12 @@ def get_client(config: LLMConfig) -> LLMClient:
     """Get a client for a given client name."""
     if config.api_type == APITypes.ANTHROPIC:
         return AnthropicDirectClient(
-            config=config,
+            llm_config=config,
         )
     elif config.api_type == APITypes.OPENAI:
-        return OpenAIDirectClient(config=config)
+        return OpenAIDirectClient(llm_config=config)
     elif config.api_type == APITypes.GEMINI:
-        return GeminiDirectClient(config=config)
+        return GeminiDirectClient(llm_config=config)
 
 
 __all__ = [

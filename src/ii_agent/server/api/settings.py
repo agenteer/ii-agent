@@ -34,11 +34,23 @@ async def load_settings(
         settings.search_config.api_key is not None
     )
     
-    return GETSettingsModel(
+    settings_with_api_keys = GETSettingsModel(
         llm_api_key_set=llm_api_key_set,
         search_api_key_set=search_api_key_set,
         **settings.model_dump(exclude={'secrets_store'})
     )
+    
+    # Set API keys to None
+    for model_name in settings_with_api_keys.llm_configs.keys():
+        settings_with_api_keys.llm_configs[model_name].api_key = None
+    settings_with_api_keys.audio_config.openai_api_key = None
+    settings_with_api_keys.search_config.firecrawl_api_key = None
+    settings_with_api_keys.search_config.serpapi_api_key = None
+    settings_with_api_keys.search_config.tavily_api_key = None
+    settings_with_api_keys.search_config.jina_api_key = None
+    
+    return settings_with_api_keys
+        
 
 async def store_llm_settings(
     settings: Settings, settings_store: SettingsStore

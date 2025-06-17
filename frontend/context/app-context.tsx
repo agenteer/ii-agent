@@ -4,7 +4,6 @@ import { createContext, useContext, useReducer, ReactNode } from "react";
 import {
   ActionStep,
   AgentEvent,
-  AVAILABLE_MODELS,
   Message,
   TAB,
   ToolSettings,
@@ -30,6 +29,7 @@ interface AppState {
   editingMessage?: Message;
   toolSettings: ToolSettings;
   selectedModel?: string;
+  availableModels: string[];
   wsConnectionState: WebSocketConnectionState;
   isAgentInitialized: boolean;
   requireClearFiles: boolean;
@@ -58,6 +58,7 @@ export type AppAction =
   | { type: "SET_EDITING_MESSAGE"; payload: Message | undefined }
   | { type: "SET_TOOL_SETTINGS"; payload: AppState["toolSettings"] }
   | { type: "SET_SELECTED_MODEL"; payload: string | undefined }
+  | { type: "SET_AVAILABLE_MODELS"; payload: string[] }
   | { type: "SET_WS_CONNECTION_STATE"; payload: WebSocketConnectionState }
   | { type: "SET_AGENT_INITIALIZED"; payload: boolean }
   | { type: "SET_REQUIRE_CLEAR_FILES"; payload: boolean }
@@ -94,7 +95,8 @@ const initialState: AppState = {
     thinking_tokens: 10000,
   },
   wsConnectionState: WebSocketConnectionState.CONNECTING,
-  selectedModel: AVAILABLE_MODELS[0],
+  selectedModel: undefined,
+  availableModels: [],
   isAgentInitialized: false,
   requireClearFiles: false,
 };
@@ -167,6 +169,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, toolSettings: action.payload };
     case "SET_SELECTED_MODEL":
       return { ...state, selectedModel: action.payload };
+    case "SET_AVAILABLE_MODELS":
+      return { ...state, availableModels: action.payload };
     case "SET_WS_CONNECTION_STATE":
       return { ...state, wsConnectionState: action.payload };
     case "SET_AGENT_INITIALIZED":

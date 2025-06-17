@@ -109,7 +109,7 @@ const ChatMessage = ({
             ? "max-h-[calc(100vh-167px)]"
             : pendingFilesCount > 0
             ? "max-h-[calc(100vh-330px)]"
-            : "max-h-[calc(100vh-210px)]"
+            : "max-h-[calc(100vh-250px)]"
         } overflow-y-auto relative`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -409,7 +409,7 @@ const ChatMessage = ({
           <QuestionInput
             hideSettings
             className="px-4 w-full max-w-none"
-            textareaClassName="h-30 w-full"
+            textareaClassName="min-h-40 h-40 w-full"
             placeholder="Ask me anything..."
             value={state.currentQuestion}
             setValue={setCurrentQuestion}
@@ -457,7 +457,7 @@ const ChatMessage = ({
           <QuestionInput
             hideSettings
             className="p-4 pb-0 w-full max-w-none"
-            textareaClassName="h-30 w-full"
+            textareaClassName="min-h-40 h-40 w-full"
             placeholder="Ask me anything..."
             value={state.currentQuestion}
             setValue={setCurrentQuestion}

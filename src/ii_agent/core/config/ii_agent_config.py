@@ -1,6 +1,9 @@
-from pydantic import BaseModel, Field
+import os
+from pathlib import Path
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from ii_agent.utils.constants import TOKEN_BUDGET
+
 # Constants
 MAX_OUTPUT_TOKENS_PER_TURN = 32000
 MAX_TURNS = 200
@@ -15,6 +18,13 @@ class AgentConfig(BaseModel):
     max_output_tokens_per_turn: int = MAX_OUTPUT_TOKENS_PER_TURN
     max_turns: int = MAX_TURNS
     token_budget: int = TOKEN_BUDGET
+    
+    @field_validator('logs_path')
+    def expand_logs_path(cls, v):
+        if v.startswith('~'):
+            return os.path.expanduser(v)
+        return v
+
 
 class IIAgentConfig(BaseSettings):
     """
@@ -31,4 +41,10 @@ class IIAgentConfig(BaseSettings):
     workspace_root: str = Field(default="~/.ii_agent/workspace")
     use_container_workspace: bool = Field(default=False)
     agent_config: AgentConfig = Field(default=AgentConfig())
+    
+    @field_validator('file_store_path', 'workspace_root')
+    def expand_path(cls, v):
+        if v.startswith('~'):
+            return os.path.expanduser(v)
+        return v
 
