@@ -280,6 +280,12 @@ try breaking down the task into smaller steps. After call this tool to update or
                 self.logger_for_agent_logs.info(
                     f"Top-level agent planning next step: {text_result.text}\n",
                 )
+                self.message_queue.put_nowait(
+                    RealtimeEvent(
+                        type=EventType.AGENT_RESPONSE,
+                        content={"text": text_result.text},
+                    )
+                )
 
             # Handle tool call by the agent
             if self.interrupted:
