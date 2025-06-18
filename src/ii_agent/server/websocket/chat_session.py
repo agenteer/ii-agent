@@ -689,7 +689,6 @@ Please review this feedback and implement the suggested improvements to better c
             workspace_manager=workspace_manager,
             message_queue=queue,
             container_id=self.config.agent_config.docker_container_id,
-            ask_user_permission=self.config.agent_config.needs_permission,
             tool_args=tool_args,
             settings=settings,
         )
@@ -763,7 +762,6 @@ Please review this feedback and implement the suggested improvements to better c
             workspace_manager=workspace_manager,
             message_queue=queue,
             container_id=self.config.agent_config.docker_container_id,
-            ask_user_permission=self.config.agent_config.needs_permission,
             tool_args=tool_args,
             settings=settings,
         )

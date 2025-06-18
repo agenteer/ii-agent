@@ -10,7 +10,7 @@ from ii_agent.server import shared
 logger = logging.getLogger(__name__)
 
 
-def create_app(args) -> FastAPI:
+def create_app() -> FastAPI:
     """Create and configure the FastAPI application.
 
     Args:
@@ -31,7 +31,7 @@ def create_app(args) -> FastAPI:
     )
 
     # Store global args in app state for access in endpoints
-    app.state.workspace = args.workspace
+    app.state.workspace = shared.config.workspace_path
 
     
 
@@ -41,7 +41,7 @@ def create_app(args) -> FastAPI:
     app.include_router(settings_router)
 
     # Setup workspace static files
-    setup_workspace(app, args.workspace)
+    setup_workspace(app, shared.config.workspace_path)
 
     # WebSocket endpoint
     @app.websocket("/ws")

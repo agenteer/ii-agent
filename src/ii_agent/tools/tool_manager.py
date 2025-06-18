@@ -63,7 +63,6 @@ def get_system_tools(
     message_queue: asyncio.Queue,
     settings: Settings,
     container_id: Optional[str] = None,
-    ask_user_permission: bool = False,
     tool_args: Dict[str, Any] = None,
 ) -> list[LLMTool]:
     """
@@ -72,6 +71,7 @@ def get_system_tools(
     Returns:
         list[LLMTool]: A list of all system tools.
     """
+    ask_user_permission = False # Not support
     if container_id is not None:
         bash_tool = create_docker_bash_tool(
             container=container_id, ask_user_permission=ask_user_permission
