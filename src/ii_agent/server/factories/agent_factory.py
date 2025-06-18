@@ -241,8 +241,6 @@ class AgentFactory:
             client=client,
             workspace_manager=workspace_manager,
             message_queue=queue,
-            container_id=self.config.docker_container_id,
-            ask_user_permission=self.config.needs_permission,
             tool_args=tool_args,
         )
 
