@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from ii_agent.utils.constants import TOKEN_BUDGET
@@ -29,7 +30,7 @@ class IIAgentConfig(BaseSettings):
     use_container_workspace: bool = Field(default=False)
     logs_path: str = Field(default=f"{DATA_DIR}/logs")
     minimize_stdout_logs: bool = False
-    docker_container_id: str = None
+    docker_container_id: Optional[str] = None
     max_output_tokens_per_turn: int = MAX_OUTPUT_TOKENS_PER_TURN
     max_turns: int = MAX_TURNS
     token_budget: int = TOKEN_BUDGET
