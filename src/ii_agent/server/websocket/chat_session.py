@@ -625,8 +625,8 @@ Please review this feedback and implement the suggested improvements to better c
 
         # Ensure we don't duplicate handlers
         if not logger_for_agent_logs.handlers:
-            logger_for_agent_logs.addHandler(logging.FileHandler(self.config.agent_config.logs_path))
-            if not self.config.agent_config.minimize_stdout_logs:
+            logger_for_agent_logs.addHandler(logging.FileHandler(self.config.logs_path))
+            if not self.config.minimize_stdout_logs:
                 logger_for_agent_logs.addHandler(logging.StreamHandler())
 
         # Check and create database session
@@ -653,7 +653,7 @@ Please review this feedback and implement the suggested improvements to better c
             client=client,
             token_counter=token_counter,
             logger=logger,
-            token_budget=self.config.agent_config.token_budget,
+            token_budget=self.config.token_budget,
         )
 
         # Create agent
@@ -688,7 +688,7 @@ Please review this feedback and implement the suggested improvements to better c
             client=client,
             workspace_manager=workspace_manager,
             message_queue=queue,
-            container_id=self.config.agent_config.docker_container_id,
+            container_id=self.config.docker_container_id,
             tool_args=tool_args,
             settings=settings,
         )
@@ -716,8 +716,8 @@ Please review this feedback and implement the suggested improvements to better c
             message_queue=queue,
             logger_for_agent_logs=logger,
             init_history=init_history,
-            max_output_tokens_per_turn=self.config.agent_config.max_output_tokens_per_turn,
-            max_turns=self.config.agent_config.max_turns,
+            max_output_tokens_per_turn=self.config.max_output_tokens_per_turn,
+            max_turns=self.config.max_turns,
             websocket=websocket,
             session_id=session_id,
         )
@@ -761,7 +761,7 @@ Please review this feedback and implement the suggested improvements to better c
             client=client,
             workspace_manager=workspace_manager,
             message_queue=queue,
-            container_id=self.config.agent_config.docker_container_id,
+            container_id=self.config.docker_container_id,
             tool_args=tool_args,
             settings=settings,
         )
@@ -774,8 +774,8 @@ Please review this feedback and implement the suggested improvements to better c
             message_queue=queue,
             logger_for_agent_logs=logger_for_agent_logs,
             context_manager=context_manager,
-            max_output_tokens_per_turn=self.config.agent_config.max_output_tokens_per_turn,
-            max_turns=self.config.agent_config.max_turns,
+            max_output_tokens_per_turn=self.config.max_output_tokens_per_turn,
+            max_turns=self.config.max_turns,
             websocket=websocket,
             session_id=session_id,
         )

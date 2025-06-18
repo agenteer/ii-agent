@@ -12,21 +12,6 @@ BASE_DIR = Path(__file__).parent.parent.parent.parent.parent
 II_AGENT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = Path(os.getenv("DATA_DIR", BASE_DIR / "data")).resolve()
 
-class AgentConfig(BaseModel):
-    logs_path: str = Field(default="~/.ii_agent/logs")
-    minimize_stdout_logs: bool = False
-    docker_container_id: str = None
-    needs_permission: bool = True
-    max_output_tokens_per_turn: int = MAX_OUTPUT_TOKENS_PER_TURN
-    max_turns: int = MAX_TURNS
-    token_budget: int = TOKEN_BUDGET
-    
-    @field_validator('logs_path')
-    def expand_logs_path(cls, v):
-        if v.startswith('~'):
-            return os.path.expanduser(v)
-        return v
-
 
 class IIAgentConfig(BaseSettings):
     """
@@ -42,7 +27,13 @@ class IIAgentConfig(BaseSettings):
     file_store_path: str = Field(default=f"{DATA_DIR}/file_store")
     workspace_root: str = Field(default=f"{DATA_DIR}/workspace")
     use_container_workspace: bool = Field(default=False)
-    agent_config: AgentConfig = Field(default=AgentConfig())
+    logs_path: str = Field(default=f"{DATA_DIR}/logs")
+    minimize_stdout_logs: bool = False
+    docker_container_id: str = None
+    max_output_tokens_per_turn: int = MAX_OUTPUT_TOKENS_PER_TURN
+    max_turns: int = MAX_TURNS
+    token_budget: int = TOKEN_BUDGET
+
     database_url: str = Field(default=f"sqlite:///{DATA_DIR}/events.db")
     
     @field_validator('file_store_path', 'workspace_root')
