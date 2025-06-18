@@ -14,7 +14,6 @@ from ii_agent.tools.image_search_tool import ImageSearchTool
 from ii_agent.tools.base import LLMTool
 from ii_agent.llm.message_history import ToolCallParameters
 from ii_agent.tools.clients.config import RemoteClientConfig
-from ii_agent.tools.project_start_up_tool import ProjectStartUpTool
 from ii_agent.tools.register_deployment import RegisterDeploymentTool
 from ii_agent.tools.shell_tools import (
     ShellExecTool,
@@ -71,6 +70,7 @@ from ii_agent.tools.deep_research_tool import DeepResearchTool
 from ii_agent.tools.list_html_links_tool import ListHtmlLinksTool
 from ii_agent.utils.constants import TOKEN_BUDGET
 from ii_agent.utils.workspace_manager import WorkSpaceMode
+from ii_agent.tools.frontend_tool import FrontendInitTool, BrowserDebugTool
 
 
 def get_system_tools(
@@ -161,10 +161,8 @@ def get_system_tools(
                 workspace_manager=workspace_manager,
                 str_replace_client=str_replace_client,
             ),
-            ProjectStartUpTool(
-                workspace_manager=workspace_manager, terminal_client=terminal_client
-            ),
             DisplayImageTool(workspace_manager=workspace_manager),
+            FrontendInitTool(workspace_manager=workspace_manager, terminal_client=terminal_client),
         ]
     )
 
@@ -226,6 +224,7 @@ def get_system_tools(
                     BrowserPressKeyTool(browser=browser),
                     BrowserGetSelectOptionsTool(browser=browser),
                     BrowserSelectDropdownOptionTool(browser=browser),
+                    BrowserDebugTool(browser=browser),
                 ]
             )
 

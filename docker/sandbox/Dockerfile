@@ -1,14 +1,12 @@
 FROM nikolaik/python-nodejs:python3.10-nodejs20-slim
 
-# Set environment variables
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-
 RUN apt-get update && apt-get install -y \
     build-essential \
     procps \
     lsof \
     git \
-    net-tools
+    net-tools \
+    unzip
 
 #RUN echo 'export PS1="[CMD_BEGIN]\\n\\u@\\h:\\w\\n[CMD_END]"; export PS2=""' >> /root/.bashrc
 
@@ -18,9 +16,11 @@ WORKDIR /app
 
 RUN pip install -r ii_client/requirements.txt
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install unzip
+RUN apt-get install -y unzip
 
-COPY .templates /app/templates
+COPY .templates /app/.templates
+
+RUN curl -fsSL https://bun.sh/install | bash
 
 CMD ["python", "-m", "ii_client.sandbox_server", "--port", "17300" , "--cwd", "/workspace"]

@@ -8,7 +8,7 @@ export const AVAILABLE_MODELS = [
   "claude-sonnet-4@20250514",
   "claude-opus-4@20250514",
   "claude-3-7-sonnet@20250219",
-  "gemini-2.5-pro-preview-05-06",
+  "gemini-2.5-pro",
   "gpt-4.1",
 ];
 

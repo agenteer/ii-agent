@@ -33,16 +33,17 @@ class GeminiDirectClient(LLMClient):
 
     def __init__(self, model_name: str, max_retries: int = 2, project_id: None | str = None, region: None | str = None):
         self.model_name = model_name
-
         if project_id and region:
+            self.endpoint = "vertex"
             self.client = genai.Client(vertexai=True, project=project_id, location=region)
             print(f"====== Using Gemini through Vertex AI API with project_id: {project_id} and region: {region} ======")
         else:
+            self.endpoint = "studio"
             api_key = os.getenv("GEMINI_API_KEY")
             if not api_key:
                 raise ValueError("GEMINI_API_KEY is not set")
             self.client = genai.Client(api_key=api_key)
-            print("====== Using Gemini directly ======")
+            print(f"====== Using Gemini directly ======")
             
         self.max_retries = max_retries
 
@@ -51,9 +52,10 @@ class GeminiDirectClient(LLMClient):
         messages: LLMMessages,
         max_tokens: int,
         system_prompt: str | None = None,
-        temperature: float = 0.0,
         tools: list[ToolParam] = [],
         tool_choice: dict[str, str] | None = None,
+        thinking_tokens: int = 8192,
+        temperature: float = 0.0,
     ) -> Tuple[list[AssistantContentBlock], dict[str, Any]]:
         
         gemini_messages = []
@@ -121,18 +123,26 @@ class GeminiDirectClient(LLMClient):
             mode = 'AUTO'
         else:
             raise ValueError(f"Unknown tool_choice type for Gemini: {tool_choice['type']}")
-
+        if self.endpoint == "vertex":
+            config = types.GenerateContentConfig(
+                tools=tool_params,
+                system_instruction=system_prompt,
+                max_output_tokens=max_tokens,
+                tool_config={'function_calling_config': {'mode': mode}}
+            )
+        else:
+            config = types.GenerateContentConfig(
+                tools=tool_params,
+                system_instruction=system_prompt,
+                thinking_config=types.ThinkingConfig(thinking_budget=thinking_tokens),
+                max_output_tokens=max_tokens,
+                tool_config={'function_calling_config': {'mode': mode}}
+            )
         for retry in range(self.max_retries):
             try:
                 response = self.client.models.generate_content(
                     model=self.model_name,
-                    config=types.GenerateContentConfig(
-                        tools=tool_params,
-                        system_instruction=system_prompt,
-                        temperature=temperature,
-                        max_output_tokens=max_tokens,
-                        tool_config={'function_calling_config': {'mode': mode}}
-                        ),
+                    config=config,
                     contents=gemini_messages,
                 )
                 break
@@ -152,8 +162,18 @@ class GeminiDirectClient(LLMClient):
                     raise e
 
         internal_messages = []
-        if response.text:
-            internal_messages.append(TextResult(text=response.text))
+        # Extract text parts directly from response.candidates to avoid warning
+        text_parts = []
+        if response.candidates and len(response.candidates) > 0:
+            candidate = response.candidates[0]
+            if candidate.content and candidate.content.parts:
+                for part in candidate.content.parts:
+                    if hasattr(part, 'text') and part.text:
+                        text_parts.append(part.text)
+        
+        if text_parts:
+            combined_text = ''.join(text_parts)
+            internal_messages.append(TextResult(text=combined_text))
 
         if response.function_calls:
             for fn_call in response.function_calls:

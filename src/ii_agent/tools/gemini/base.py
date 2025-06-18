@@ -8,7 +8,7 @@ from ii_agent.tools.base import (
 from ii_agent.utils import WorkspaceManager
 
 
-DEFAULT_MODEL = "gemini-2.5-pro-preview-05-06"
+DEFAULT_MODEL = "gemini-2.5-pro"
 
 
 class GeminiTool(LLMTool):

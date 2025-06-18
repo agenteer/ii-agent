@@ -11,13 +11,14 @@ WORKDIR /app
 # Copy only the files needed for installation
 COPY pyproject.toml .
 COPY README.md .
-COPY src/ii_agent/ ./src/ii_agent/
 
 # Install dependencies into a virtual environment
 RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .
+RUN pip install --no-cache-dir --upgrade pip
+
+COPY src/ii_agent/ ./src/ii_agent/
+RUN pip install --no-cache-dir .
 
 FROM python:3.10-slim
 
@@ -41,9 +42,6 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# Copy application code
-COPY . .
-
 # Create workspace directory
 RUN mkdir -p workspace
 
@@ -56,6 +54,9 @@ ENV FILE_STORE=local
 ENV FILE_STORE_PATH=/.ii_agent_file_store
 
 RUN mkdir -p $FILE_STORE_PATH
+
+# Copy application code
+COPY . .
 
 COPY docker/backend/run.sh /app/run.sh
 RUN chmod +x /app/run.sh
