@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { X, ChevronDown, RotateCcw } from "lucide-react";
+import { X, ChevronDown, RotateCcw, Settings2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 
@@ -29,6 +29,7 @@ const SettingsDrawer = ({ isOpen, onClose, onOpen }: SettingsDrawerProps) => {
   const [toolsExpanded, setToolsExpanded] = useState(true);
   const [reasoningExpanded, setReasoningExpanded] = useState(true);
   const [isApiKeysDialogOpen, setIsApiKeysDialogOpen] = useState(false);
+  const [isModelConfigOpen, setIsModelConfigOpen] = useState(false);
 
   const isClaudeModel = useMemo(
     () => state.selectedModel?.toLowerCase().includes("claude"),
@@ -133,23 +134,38 @@ const SettingsDrawer = ({ isOpen, onClose, onOpen }: SettingsDrawerProps) => {
           <div className="space-y-6">
             {/* Model selector */}
             <div className="space-y-2">
-              <Select
-                value={state.selectedModel}
-                onValueChange={(model) =>
-                  dispatch({ type: "SET_SELECTED_MODEL", payload: model })
-                }
-              >
-                <SelectTrigger className="w-full bg-[#35363a] border-[#ffffff0f]">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#35363a] border-[#ffffff0f]">
-                  {state.availableModels?.map((model) => (
-                    <SelectItem key={model} value={model}>
-                      {model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={state.selectedModel}
+                  onValueChange={(model) =>
+                    dispatch({ type: "SET_SELECTED_MODEL", payload: model })
+                  }
+                >
+                  <SelectTrigger className="w-full bg-[#35363a] border-[#ffffff0f]">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#35363a] border-[#ffffff0f]">
+                    {state.availableModels?.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 bg-[#35363a] border-[#ffffff0f]"
+                      onClick={() => setIsModelConfigOpen(true)}
+                    >
+                      <Settings2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Configure Models</TooltipContent>
+                </Tooltip>
+              </div>
             </div>
 
             {/* Reasoning Effort section - only for Claude models */}
@@ -353,12 +369,16 @@ const SettingsDrawer = ({ isOpen, onClose, onOpen }: SettingsDrawerProps) => {
 
             {/* API Keys Dialog */}
             <ApiKeysDialog
-              isOpen={isApiKeysDialogOpen}
-              onClose={() => setIsApiKeysDialogOpen(false)}
+              isOpen={isApiKeysDialogOpen || isModelConfigOpen}
+              onClose={() => {
+                setIsApiKeysDialogOpen(false);
+                setIsModelConfigOpen(false);
+              }}
               onOpen={() => {
                 setIsApiKeysDialogOpen(true);
                 onOpen();
               }}
+              initialTab={isModelConfigOpen ? "llm-config" : "search-config"}
             />
           </div>
         </div>
