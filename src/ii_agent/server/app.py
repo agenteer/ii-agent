@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
     )
 
     # Store global args in app state for access in endpoints
-    app.state.workspace = shared.config.workspace_path
+    app.state.workspace = shared.config.workspace_root
 
     
 
@@ -41,7 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(settings_router)
 
     # Setup workspace static files
-    setup_workspace(app, shared.config.workspace_path)
+    setup_workspace(app, shared.config.workspace_root)
 
     # WebSocket endpoint
     @app.websocket("/ws")
