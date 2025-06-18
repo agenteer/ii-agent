@@ -182,9 +182,75 @@ async def debug_headers(request: Request):
     return {"headers": headers}
 
 
+def is_websocket_upgrade_request(request: Request) -> bool:
+    """Check if the request is a WebSocket upgrade request"""
+    connection = request.headers.get("connection", "").lower()
+    upgrade = request.headers.get("upgrade", "").lower()
+    return "upgrade" in connection and upgrade == "websocket"
+
+
+async def handle_websocket_upgrade(service_path: str, request: Request):
+    """Handle WebSocket upgrade requests for Socket.IO compatibility"""
+    try:
+        # Extract container info from host header
+        host = request.headers.get("host", "")
+        if not host:
+            return JSONResponse(status_code=400, content={"error": "Missing host header"})
+
+        container_name_port = host.split(".")[0].split("-")
+        container_name = "-".join(container_name_port[:-1])
+        port = container_name_port[-1]
+
+        # Construct target URL
+        target_url = f"http://{container_name}:{port}/{service_path}"
+        
+        # Add query parameters if they exist
+        if request.url.query:
+            target_url += f"?{request.url.query}"
+
+        logger.info(f"Handling WebSocket upgrade to {target_url}")
+
+        # Forward the upgrade request with all headers
+        headers = dict(request.headers)
+        body = await request.body()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.request(
+                method=request.method,
+                url=target_url,
+                headers=headers,
+                data=body,
+                timeout=60.0,
+            ) as response:
+                # For upgrade requests, we need to return the response as-is
+                content = await response.read()
+                status = response.status
+
+                # Preserve all headers for upgrade response
+                response_headers = dict(response.headers)
+                
+                logger.info(f"WebSocket upgrade response status: {status}")
+                logger.info(f"WebSocket upgrade response headers: {response_headers}")
+
+                return Response(
+                    content=content,
+                    status_code=status,
+                    headers=response_headers,
+                )
+
+    except Exception as e:
+        logger.error(f"Error handling WebSocket upgrade: {str(e)}")
+        return JSONResponse(
+            status_code=502,
+            content={"error": f"Failed to upgrade WebSocket connection: {str(e)}"}
+        )
+
+
 @app.api_route("/{service_path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy(service_path: str, request: Request):
     """Proxy requests to agent containers within the Docker network.
+    
+    Now handles both regular HTTP requests and WebSocket upgrade requests.
 
     Args:
         request: The incoming request to proxy
@@ -193,6 +259,11 @@ async def proxy(service_path: str, request: Request):
     Returns:
         The response from the target service
     """
+    # Check if this is a WebSocket upgrade request (for Socket.IO)
+    if is_websocket_upgrade_request(request):
+        return await handle_websocket_upgrade(service_path, request)
+    
+    # Regular HTTP request handling
     container_port = request.headers.get("x-subdomain", "unknown_unknown")
     port = container_port.split("-")[-1]
     container_name = "-".join(container_port.split("-")[:-1])

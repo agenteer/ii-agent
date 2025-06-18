@@ -28,13 +28,13 @@ fi
 
 #DEPLOYMENT DOMAIN, CHANGE THIS IF YOU SET UP YOUR OWN DOMAIN AND REVERSE PROXY
 echo "Using HOST_IP: $HOST_IP"
-export PUBLIC_DOMAIN=${HOST_IP}.nip.io
 
 #BACKEND ENVIRONMENT VARIABLES
+export PROXY_SERVER_PORT=9000
 export FRONTEND_PORT=3000
-export NGINX_PORT=80
 export BACKEND_PORT=8000
 export WORKSPACE_PATH=${PWD}/workspace
+export PUBLIC_DOMAIN=${HOST_IP}.nip.io:${PROXY_SERVER_PORT}
 
 # Start docker-compose with the HOST_IP variable
 COMPOSE_PROJECT_NAME=agent docker compose -f docker/docker-compose.yaml --profile $COMPOSE_PROFILE up "$@"
