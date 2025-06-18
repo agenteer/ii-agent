@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-import { Orbitron } from "next/font/google";
+import { Kumbh_Sans } from "next/font/google";
 import { useSearchParams } from "next/navigation";
 
 import { useDeviceId } from "@/hooks/use-device-id";
@@ -38,7 +38,7 @@ const Terminal = dynamic(() => import("@/components/terminal"), {
   ssr: false,
 });
 
-const orbitron = Orbitron({
+const kumbh_sans = Kumbh_Sans({
   subsets: ["latin"],
 });
 
@@ -183,6 +183,44 @@ export default function HomeContent() {
     }
   };
 
+  const handleReviewResult = () => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      toast.error("WebSocket connection is not open. Please try again.");
+      dispatch({ type: "SET_LOADING", payload: false });
+      return;
+    }
+    const { thinking_tokens, ...tool_args } = state.toolSettings;
+
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_COMPLETED", payload: false });
+
+    // Only send init_agent event if agent is not already initialized
+    if (!state.isAgentInitialized) {
+      sendMessage({
+        type: "init_agent",
+        content: {
+          model_name: state.selectedModel,
+          tool_args,
+          thinking_tokens,
+        },
+      });
+    }
+
+    // Find the last user message
+    const userMessages = state.messages.filter((msg) => msg.role === "user");
+    const lastUserMessage =
+      userMessages.length > 0
+        ? userMessages[userMessages.length - 1].content
+        : "";
+
+    sendMessage({
+      type: "review_result",
+      content: {
+        user_input: lastUserMessage,
+      },
+    });
+  };
+
   const handleEditMessage = (newQuestion: string) => {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       toast.error("WebSocket connection is not open. Please try again.");
@@ -304,7 +342,7 @@ export default function HomeContent() {
         <motion.h1
           className={`font-semibold text-center ${
             isInChatView ? "flex items-center gap-x-2 text-2xl" : "text-4xl"
-          } ${orbitron.className}`}
+          } ${kumbh_sans.className}`}
           layout
           layoutId="page-title"
         >
@@ -397,6 +435,7 @@ export default function HomeContent() {
                   handleEditMessage={handleEditMessage}
                   processAllEventsImmediately={processAllEventsImmediately}
                   connectWebSocket={connectWebSocket}
+                  handleReviewSession={handleReviewResult}
                 />
 
                 <div className="col-span-6 bg-[#1e1f23] border border-[#3A3B3F] p-4 rounded-2xl">
