@@ -30,36 +30,152 @@ interface ApiKeysDialogProps {
   onOpen: () => void;
 }
 
+interface IModel {
+  model_name: string;
+  provider: string;
+}
+
 // Define available models for each provider
-const PROVIDER_MODELS = {
+const PROVIDER_MODELS: { [key: string]: IModel[] } = {
   anthropic: [
-    "claude-sonnet-4@20250514",
-    "claude-opus-4@20250514",
-    "claude-3-7-sonnet@20250219",
+    {
+      model_name: "claude-sonnet-4-20250514",
+      provider: "anthropic",
+    },
+    {
+      model_name: "claude-opus-4-20250514",
+      provider: "anthropic",
+    },
+    {
+      model_name: "claude-3-7-sonnet-20250219",
+      provider: "anthropic",
+    },
   ],
   openai: [
-    "gpt-4-turbo",
-    "gpt-4-1106-preview",
-    "gpt-4",
-    "gpt-3.5-turbo",
-    "gpt-4.1",
-    "gpt-4.1-mini",
-    "gpt-4.1-nano",
-    "gpt-4.5",
-    "o3",
-    "o3-mini",
-    "o3-pro",
-    "o4-mini",
-    "custom", // Add custom option for OpenAI
+    {
+      model_name: "gpt-4-turbo",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4-1106-preview",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-3.5-turbo",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4.1",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4.1-mini",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4.1-nano",
+      provider: "openai",
+    },
+    {
+      model_name: "gpt-4.5",
+      provider: "openai",
+    },
+    {
+      model_name: "o3",
+      provider: "openai",
+    },
+    {
+      model_name: "o3-mini",
+      provider: "openai",
+    },
+    {
+      model_name: "o3-pro",
+      provider: "openai",
+    },
+    {
+      model_name: "o4-mini",
+      provider: "openai",
+    },
+    {
+      model_name: "custom",
+      provider: "openai",
+    },
   ],
   gemini: [
-    "gemini-pro",
-    "gemini-1.5-pro",
-    "gemini-1.5-flash",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
+    {
+      model_name: "gemini-pro",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-1.5-pro",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-1.5-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.0-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.0-flash-lite",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.5-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.5-pro",
+      provider: "gemini",
+    },
+  ],
+  vertex: [
+    {
+      model_name: "claude-sonnet-4@20250514",
+      provider: "anthropic",
+    },
+    {
+      model_name: "claude-opus-4@20250514",
+      provider: "anthropic",
+    },
+    {
+      model_name: "claude-3-7-sonnet@20250219",
+      provider: "anthropic",
+    },
+    {
+      model_name: "gemini-pro",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-1.5-pro",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-1.5-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.0-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.0-flash-lite",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.5-flash",
+      provider: "gemini",
+    },
+    {
+      model_name: "gemini-2.5-pro",
+      provider: "gemini",
+    },
   ],
 };
 
@@ -67,7 +183,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
   const { dispatch } = useAppContext();
   const [activeTab, setActiveTab] = useState("llm-config");
   const [selectedProvider, setSelectedProvider] = useState("anthropic");
-  const [selectedModel, setSelectedModel] = useState(
+  const [selectedModel, setSelectedModel] = useState<IModel>(
     PROVIDER_MODELS.anthropic[0]
   );
   const [customModelName, setCustomModelName] = useState("");
@@ -135,7 +251,10 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
           const provider = firstModelConfig.api_type || "anthropic";
 
           setSelectedProvider(provider);
-          setSelectedModel(firstModelName);
+          setSelectedModel({
+            model_name: firstModelName,
+            provider,
+          });
 
           // Update available models in app context
           const availableModelNames = Object.keys(data.llm_configs);
@@ -188,31 +307,41 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
     setCustomModelName(""); // Reset custom model name when provider changes
   };
 
+  const getModelKey = (model: IModel) => {
+    if (model.model_name === "custom") {
+      return `custom/${customModelName}`;
+    }
+    return `${selectedProvider}/${model.model_name}`;
+  };
+
   // Handle model selection
-  const handleModelChange = (model: string) => {
+  const handleModelChange = (model: {
+    model_name: string;
+    provider: string;
+  }) => {
     setSelectedModel(model);
 
     // If not custom model, ensure the model config exists
-    if (model !== "custom") {
-      if (!llmConfig[model]) {
+    if (model.model_name !== "custom") {
+      if (!llmConfig[getModelKey(model)]) {
         setLlmConfig({
           ...llmConfig,
-          [model]: {
+          [getModelKey(model)]: {
             api_key: "",
             base_url: "",
-            api_type: selectedProvider,
+            api_type: model.provider,
           },
         });
       }
     } else {
       // For custom model, ensure the "custom" key exists in llmConfig
-      if (!llmConfig["custom"]) {
+      if (!llmConfig[getModelKey(model)]) {
         setLlmConfig({
           ...llmConfig,
-          custom: {
+          [getModelKey(model)]: {
             api_key: "",
             base_url: "",
-            api_type: selectedProvider,
+            api_type: model.provider,
             model_name: "",
           },
         });
@@ -227,21 +356,22 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
     // Update the model_name field in the custom config
     setLlmConfig({
       ...llmConfig,
-      custom: {
-        ...(llmConfig["custom"] || {}),
+      [getModelKey(selectedModel)]: {
+        ...(llmConfig[getModelKey(selectedModel)] || {}),
         model_name: name,
-        api_type: selectedProvider,
+        api_type: selectedModel.provider,
       },
     });
   };
 
-  const handleLlmConfigChange = (model: string, key: string, value: string) => {
+  const handleLlmConfigChange = (model: IModel, key: string, value: string) => {
+    const modelKey = getModelKey(model);
     setLlmConfig({
       ...llmConfig,
-      [model]: {
-        ...(llmConfig[model] || {}),
+      [modelKey]: {
+        ...(llmConfig[modelKey] || {}),
         [key]: value,
-        api_type: selectedProvider,
+        api_type: model.provider,
       },
     });
   };
@@ -351,6 +481,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                       <SelectItem value="anthropic">Anthropic</SelectItem>
                       <SelectItem value="openai">OpenAI</SelectItem>
                       <SelectItem value="gemini">Gemini</SelectItem>
+                      <SelectItem value="vertex">Vertex AI</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -358,8 +489,13 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                 <div className="space-y-2">
                   <Label htmlFor="model-name">Model Name</Label>
                   <Select
-                    value={selectedModel}
-                    onValueChange={handleModelChange}
+                    value={selectedModel.model_name}
+                    onValueChange={(value) =>
+                      handleModelChange({
+                        model_name: value,
+                        provider: selectedProvider,
+                      })
+                    }
                   >
                     <SelectTrigger className="bg-[#35363a] border-[#ffffff0f] w-full">
                       <SelectValue placeholder="Select Model" />
@@ -368,8 +504,11 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                       {PROVIDER_MODELS[
                         selectedProvider as keyof typeof PROVIDER_MODELS
                       ].map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
+                        <SelectItem
+                          key={model.model_name}
+                          value={model.model_name}
+                        >
+                          {model.model_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -378,7 +517,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
 
                 {/* Show custom model input field when "custom" is selected for OpenAI */}
                 {selectedProvider === "openai" &&
-                  selectedModel === "custom" && (
+                  selectedModel.model_name === "custom" && (
                     <div className="space-y-2">
                       <Label htmlFor="custom-model-name">
                         Custom Model Name
@@ -403,7 +542,9 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                       <Input
                         id="api-key"
                         type="password"
-                        value={llmConfig[selectedModel]?.api_key || ""}
+                        value={
+                          llmConfig[getModelKey(selectedModel)]?.api_key || ""
+                        }
                         onChange={(e) =>
                           handleLlmConfigChange(
                             selectedModel,
@@ -420,7 +561,9 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                       <Input
                         id="base-url"
                         type="text"
-                        value={llmConfig[selectedModel]?.base_url || ""}
+                        value={
+                          llmConfig[getModelKey(selectedModel)]?.base_url || ""
+                        }
                         onChange={(e) =>
                           handleLlmConfigChange(
                             selectedModel,
@@ -443,17 +586,11 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                         id="api-key"
                         type="password"
                         value={
-                          llmConfig[
-                            selectedModel === "custom"
-                              ? customModelName
-                              : selectedModel
-                          ]?.api_key || ""
+                          llmConfig[getModelKey(selectedModel)]?.api_key || ""
                         }
                         onChange={(e) =>
                           handleLlmConfigChange(
-                            selectedModel === "custom"
-                              ? customModelName
-                              : selectedModel,
+                            selectedModel,
                             "api_key",
                             e.target.value
                           )
@@ -461,7 +598,8 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                         placeholder="Enter API Key"
                         className="bg-[#35363a] border-[#ffffff0f]"
                         disabled={
-                          selectedModel === "custom" && !customModelName.trim()
+                          selectedModel.model_name === "custom" &&
+                          !customModelName.trim()
                         }
                       />
                     </div>
@@ -471,17 +609,11 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                         id="base-url"
                         type="text"
                         value={
-                          llmConfig[
-                            selectedModel === "custom"
-                              ? customModelName
-                              : selectedModel
-                          ]?.base_url || ""
+                          llmConfig[getModelKey(selectedModel)]?.base_url || ""
                         }
                         onChange={(e) =>
                           handleLlmConfigChange(
-                            selectedModel === "custom"
-                              ? customModelName
-                              : selectedModel,
+                            selectedModel,
                             "base_url",
                             e.target.value
                           )
@@ -489,7 +621,8 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                         placeholder="Enter Base URL (if using a proxy)"
                         className="bg-[#35363a] border-[#ffffff0f]"
                         disabled={
-                          selectedModel === "custom" && !customModelName.trim()
+                          selectedModel.model_name === "custom" &&
+                          !customModelName.trim()
                         }
                       />
                     </div>
@@ -503,7 +636,9 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                       <Input
                         id="api-key"
                         type="password"
-                        value={llmConfig[selectedModel]?.api_key || ""}
+                        value={
+                          llmConfig[getModelKey(selectedModel)]?.api_key || ""
+                        }
                         onChange={(e) =>
                           handleLlmConfigChange(
                             selectedModel,
@@ -515,14 +650,20 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                         className="bg-[#35363a] border-[#ffffff0f]"
                       />
                     </div>
+                  </div>
+                )}
+
+                {selectedProvider === "vertex" && (
+                  <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="vertex-region">
-                        Vertex Region (Optional)
-                      </Label>
+                      <Label htmlFor="vertex-region">Vertex Region</Label>
                       <Input
                         id="vertex-region"
                         type="text"
-                        value={llmConfig[selectedModel]?.vertex_region || ""}
+                        value={
+                          llmConfig[getModelKey(selectedModel)]
+                            ?.vertex_region || ""
+                        }
                         onChange={(e) =>
                           handleLlmConfigChange(
                             selectedModel,
@@ -536,13 +677,14 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="vertex-project-id">
-                        Vertex Project ID (Optional)
+                        Vertex Project ID
                       </Label>
                       <Input
                         id="vertex-project-id"
                         type="text"
                         value={
-                          llmConfig[selectedModel]?.vertex_project_id || ""
+                          llmConfig[getModelKey(selectedModel)]
+                            ?.vertex_project_id || ""
                         }
                         onChange={(e) =>
                           handleLlmConfigChange(

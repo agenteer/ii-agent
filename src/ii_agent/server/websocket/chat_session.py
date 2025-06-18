@@ -386,9 +386,15 @@ class ChatSession:
         """Handle prompt enhancement request."""
         try:
             enhance_content = EnhancePromptContent(**content)
-
             # Create LLM client using factory
-            client = self.client_factory.create_client(enhance_content.model_name)
+            user_id = None # TODO: Support user id
+            settings_store = await FileSettingsStore.get_instance(self.config, user_id)
+            settings = await settings_store.load()
+
+            llm_config = settings.llm_configs.get(enhance_content.model_name)
+            if not llm_config:
+                raise ValueError(f"LLM config not found for model: {enhance_content.model_name}")
+            client = get_client(llm_config)
 
             # Call the enhance_prompt function
             success, message, enhanced_prompt = await enhance_user_prompt(
