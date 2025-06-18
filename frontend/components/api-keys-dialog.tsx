@@ -186,7 +186,7 @@ const PROVIDER_MODELS: { [key: string]: IModel[] } = {
 };
 
 const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
-  const { dispatch } = useAppContext();
+  const { state, dispatch } = useAppContext();
   const [activeTab, setActiveTab] = useState("llm-config");
   const [selectedProvider, setSelectedProvider] = useState("anthropic");
   const [selectedModel, setSelectedModel] = useState<IModel>(
@@ -404,6 +404,10 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
     });
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   const saveConfig = async () => {
     try {
       setIsSaving(true);
@@ -466,7 +470,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
           </div>
         ) : (
           <>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="grid grid-cols-4 mb-4 w-full">
                 <TabsTrigger value="llm-config">LLM</TabsTrigger>
                 <TabsTrigger value="search-config">Search</TabsTrigger>
@@ -819,97 +823,139 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
               </TabsContent>
 
               <TabsContent value="media-config" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gcp-project-id">GCP Project ID</Label>
-                  <Input
-                    id="gcp-project-id"
-                    type="text"
-                    value={mediaConfig.gcp_project_id}
-                    onChange={(e) =>
-                      handleMediaConfigChange("gcp_project_id", e.target.value)
-                    }
-                    placeholder="Enter Google Cloud Project ID"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                {state.toolSettings.media_generation ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="gcp-project-id">GCP Project ID</Label>
+                      <Input
+                        id="gcp-project-id"
+                        type="text"
+                        value={mediaConfig.gcp_project_id}
+                        onChange={(e) =>
+                          handleMediaConfigChange(
+                            "gcp_project_id",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Google Cloud Project ID"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="gcp-location">GCP Location</Label>
-                  <Input
-                    id="gcp-location"
-                    type="text"
-                    value={mediaConfig.gcp_location}
-                    onChange={(e) =>
-                      handleMediaConfigChange("gcp_location", e.target.value)
-                    }
-                    placeholder="Enter Google Cloud location/region"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gcp-location">GCP Location</Label>
+                      <Input
+                        id="gcp-location"
+                        type="text"
+                        value={mediaConfig.gcp_location}
+                        onChange={(e) =>
+                          handleMediaConfigChange(
+                            "gcp_location",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Google Cloud location/region"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="gcs-output-bucket">GCS Output Bucket</Label>
-                  <Input
-                    id="gcs-output-bucket"
-                    type="text"
-                    value={mediaConfig.gcs_output_bucket}
-                    onChange={(e) =>
-                      handleMediaConfigChange(
-                        "gcs_output_bucket",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Enter GCS bucket URI (e.g., gs://my-bucket-name)"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="gcs-output-bucket">
+                        GCS Output Bucket
+                      </Label>
+                      <Input
+                        id="gcs-output-bucket"
+                        type="text"
+                        value={mediaConfig.gcs_output_bucket}
+                        onChange={(e) =>
+                          handleMediaConfigChange(
+                            "gcs_output_bucket",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter GCS bucket URI (e.g., gs://my-bucket-name)"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <p className="text-gray-400">
+                      Media Generation is disabled in Settings.
+                    </p>
+                    <p className="text-gray-500 text-sm mt-2">
+                      Enable it in Settings to configure media options.
+                    </p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="audio-config" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="audio-openai-key">OpenAI API Key</Label>
-                  <Input
-                    id="audio-openai-key"
-                    type="password"
-                    value={audioConfig.openai_api_key}
-                    onChange={(e) =>
-                      handleAudioConfigChange("openai_api_key", e.target.value)
-                    }
-                    placeholder="Enter OpenAI API Key for audio services"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                {state.toolSettings.audio_generation ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="audio-openai-key">OpenAI API Key</Label>
+                      <Input
+                        id="audio-openai-key"
+                        type="password"
+                        value={audioConfig.openai_api_key}
+                        onChange={(e) =>
+                          handleAudioConfigChange(
+                            "openai_api_key",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter OpenAI API Key for audio services"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="azure-endpoint">Azure Endpoint</Label>
-                  <Input
-                    id="azure-endpoint"
-                    type="text"
-                    value={audioConfig.azure_endpoint}
-                    onChange={(e) =>
-                      handleAudioConfigChange("azure_endpoint", e.target.value)
-                    }
-                    placeholder="Enter Azure OpenAI endpoint"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="azure-endpoint">Azure Endpoint</Label>
+                      <Input
+                        id="azure-endpoint"
+                        type="text"
+                        value={audioConfig.azure_endpoint}
+                        onChange={(e) =>
+                          handleAudioConfigChange(
+                            "azure_endpoint",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Azure OpenAI endpoint"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="azure-api-version">Azure API Version</Label>
-                  <Input
-                    id="azure-api-version"
-                    type="text"
-                    value={audioConfig.azure_api_version}
-                    onChange={(e) =>
-                      handleAudioConfigChange(
-                        "azure_api_version",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Enter Azure API version"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="azure-api-version">
+                        Azure API Version
+                      </Label>
+                      <Input
+                        id="azure-api-version"
+                        type="text"
+                        value={audioConfig.azure_api_version}
+                        onChange={(e) =>
+                          handleAudioConfigChange(
+                            "azure_api_version",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter Azure API version"
+                        className="bg-[#35363a] border-[#ffffff0f]"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <p className="text-gray-400">
+                      Audio Generation is disabled in Settings.
+                    </p>
+                    <p className="text-gray-500 text-sm mt-2">
+                      Enable it in Settings to configure audio options.
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
 
