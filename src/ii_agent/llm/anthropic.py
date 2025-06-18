@@ -79,11 +79,10 @@ class AnthropicDirectClient(LLMClient):
                 "@", "-"
             )  # Quick fix for Anthropic Vertex API
         self.max_retries = llm_config.max_retries
-        self.use_caching = True
         if "claude-opus-4" in self.model_name or "claude-sonnet-4" in self.model_name: #Use Interleaved Thinking for Sonnet 4 and Opus 4
-            self.headers = {"anthropic-beta": "interleaved-thinking-2025-05-14,prompt-caching-2024-07-31"}
+            self.headers = {"anthropic-beta": "interleaved-thinking-2025-05-14"}
         else:
-            self.headers = {"anthropic-beta": "prompt-caching-2024-07-31"}
+            self.headers = None
         self.thinking_tokens = llm_config.thinking_tokens
 
     def generate(
@@ -168,7 +167,7 @@ class AnthropicDirectClient(LLMClient):
                 message_content_list.append(message_content)
 
             # Anthropic supports up to 4 cache breakpoints, so we put them on the last 4 messages.
-            if self.use_caching and idx >= len(messages) - 4:
+            if idx >= len(messages) - 4:
                 if isinstance(message_content_list[-1], dict):
                     message_content_list[-1]["cache_control"] = {"type": "ephemeral"}
                 else:
@@ -180,11 +179,6 @@ class AnthropicDirectClient(LLMClient):
                     "content": message_content_list,
                 }
             )
-
-        if self.use_caching:
-            extra_headers = self.headers
-        else:
-            extra_headers = None
 
         # Turn tool_choice into Anthropic tool_choice format
         if tool_choice is None:
@@ -234,7 +228,7 @@ class AnthropicDirectClient(LLMClient):
                     system=system_prompt or Anthropic_NOT_GIVEN,
                     tool_choice=tool_choice_param,  # type: ignore
                     tools=tool_params,
-                    extra_headers=extra_headers,
+                    extra_headers=self.headers,
                     extra_body=extra_body,
                 )
                 break
