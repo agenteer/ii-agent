@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useAppContext } from "@/context/app-context";
 import isEmpty from "lodash/isEmpty";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import Cookies from "js-cookie";
 
 import {
   Dialog,
@@ -267,6 +268,10 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
 
           // Update available models in app context
           const availableModelNames = Object.keys(data.llm_configs);
+          const savedModel = Cookies.get("selected_model");
+          if (savedModel && availableModelNames.includes(savedModel)) {
+            dispatch({ type: "SET_SELECTED_MODEL", payload: savedModel });
+          }
           dispatch({
             type: "SET_AVAILABLE_MODELS",
             payload: availableModelNames,
@@ -340,7 +345,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
             base_url: "",
             api_type: model.provider,
             model: model.model_name,
-            cot_model: isCotModels.includes(model.model_name),
+            cot_model: isCotModels.some((m) => model.model_name?.includes(m)),
           },
         });
       } else {
@@ -349,7 +354,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
           [getModelKey(model)]: {
             ...llmConfig[getModelKey(model)],
             model: model.model_name,
-            cot_model: isCotModels.includes(model.model_name),
+            cot_model: isCotModels.some((m) => model.model_name?.includes(m)),
           },
         });
       }
@@ -362,7 +367,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
             api_key: "",
             base_url: "",
             api_type: model.provider,
-            model: "",
+            model: customModelName,
           },
         });
       }
@@ -392,6 +397,8 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
         ...(llmConfig[modelKey] || {}),
         [key]: value,
         api_type: model.provider,
+        model:
+          model.model_name === "custom" ? customModelName : model.model_name,
       },
     });
   };

@@ -635,17 +635,16 @@ Please review this feedback and implement the suggested improvements to better c
             logger.info(
                 f"Found existing session {session_id} with workspace at {existing_session.workspace_dir}"
             )
-            return
-
-        # Create new session if it doesn't exist
-        Sessions.create_session(
-            device_id=device_id,
-            session_uuid=session_id,
-            workspace_path=workspace_manager.root,
-        )
-        logger.info(
-            f"Created new session {session_id} with workspace at {workspace_manager.root}"
-        )
+        else:
+            # Create new session if it doesn't exist
+            Sessions.create_session(
+                device_id=device_id,
+                session_uuid=session_id,
+                workspace_path=workspace_manager.root,
+            )
+            logger.info(
+                f"Created new session {session_id} with workspace at {workspace_manager.root}"
+            )
 
         # Create context manager
         token_counter = TokenCounter()

@@ -30,14 +30,6 @@ const SettingsDrawer = ({ isOpen, onClose, onOpen }: SettingsDrawerProps) => {
   const [reasoningExpanded, setReasoningExpanded] = useState(true);
   const [isApiKeysDialogOpen, setIsApiKeysDialogOpen] = useState(false);
 
-  // Get selected model from cookies on init
-  useEffect(() => {
-    const savedModel = Cookies.get("selected_model");
-    if (savedModel && state.availableModels.includes(savedModel)) {
-      dispatch({ type: "SET_SELECTED_MODEL", payload: savedModel });
-    }
-  }, [dispatch, state.availableModels]);
-
   const isClaudeModel = useMemo(
     () => state.selectedModel?.toLowerCase().includes("claude"),
     [state.selectedModel]
