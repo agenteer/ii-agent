@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-ENV BASE_DIR=/app/data
+ENV FILE_STORE_PATH=/.ii_agent
 
 COPY ws_server.py /app/ws_server.py
 
@@ -45,12 +45,9 @@ RUN playwright install --with-deps chromium
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-RUN mkdir -p $BASE_DIR
-
-COPY docker/backend/run.sh /app/run.sh
-RUN chmod +x /app/run.sh
+RUN mkdir -p $FILE_STORE_PATH
 
 # Expose port for WebSocket server
 EXPOSE 8000
 
-ENTRYPOINT ["/app/run.sh"]
+ENTRYPOINT ["xvfb-run", "--auto-servernum", "python", "ws_server.py"]
