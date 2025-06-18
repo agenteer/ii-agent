@@ -52,9 +52,10 @@ class OpenAIDirectClient(LLMClient):
             )
 
         else:
+            base_url = llm_config.base_url or "https://api.openai.com/v1"
             self.client = openai.OpenAI(
                 api_key=llm_config.api_key.get_secret_value() if llm_config.api_key else None,
-                base_url=llm_config.base_url,
+                base_url=base_url,
                 max_retries=llm_config.max_retries,
             )
         self.model_name = llm_config.model

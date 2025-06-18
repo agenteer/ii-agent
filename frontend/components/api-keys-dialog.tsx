@@ -185,6 +185,8 @@ const PROVIDER_MODELS: { [key: string]: IModel[] } = {
   ],
 };
 
+const isCotModels = ["o3", "o3-mini", "o3-pro", "o4-mini"];
+
 const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
   const { state, dispatch } = useAppContext();
   const [activeTab, setActiveTab] = useState("llm-config");
@@ -337,6 +339,17 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
             api_key: "",
             base_url: "",
             api_type: model.provider,
+            model: model.model_name,
+            cot_model: isCotModels.includes(model.model_name),
+          },
+        });
+      } else {
+        setLlmConfig({
+          ...llmConfig,
+          [getModelKey(model)]: {
+            ...llmConfig[getModelKey(model)],
+            model: model.model_name,
+            cot_model: isCotModels.includes(model.model_name),
           },
         });
       }
@@ -349,7 +362,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
             api_key: "",
             base_url: "",
             api_type: model.provider,
-            model_name: "",
+            model: "",
           },
         });
       }
@@ -365,7 +378,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
       ...llmConfig,
       [getModelKey(selectedModel)]: {
         ...(llmConfig[getModelKey(selectedModel)] || {}),
-        model_name: name,
+        model: name,
         api_type: selectedModel.provider,
       },
     });
