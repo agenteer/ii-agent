@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAppContext } from "@/context/app-context";
 import isEmpty from "lodash/isEmpty";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import {
   Dialog,
@@ -23,6 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LLMConfig } from "@/typings/agent";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ApiKeysDialogProps {
   isOpen: boolean;
@@ -214,6 +220,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showFirecrawlBaseUrl, setShowFirecrawlBaseUrl] = useState(false); // Add state for toggle
 
   useEffect(() => {
     fetchSettings();
@@ -493,7 +500,7 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                     onValueChange={(value) =>
                       handleModelChange({
                         model_name: value,
-                        provider: selectedProvider,
+                        provider: selectedModel.provider,
                       })
                     }
                   >
@@ -703,7 +710,32 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
 
               <TabsContent value="search-config" className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firecrawl-key">FireCrawl API Key</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="firecrawl-key">FireCrawl API Key</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() =>
+                            setShowFirecrawlBaseUrl(!showFirecrawlBaseUrl)
+                          }
+                        >
+                          {showFirecrawlBaseUrl ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {showFirecrawlBaseUrl
+                          ? "Hide Base URL"
+                          : "Show Base URL"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="firecrawl-key"
                     type="password"
@@ -719,22 +751,26 @@ const ApiKeysDialog = ({ isOpen, onClose, onOpen }: ApiKeysDialogProps) => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="firecrawl-base-url">FireCrawl Base URL</Label>
-                  <Input
-                    id="firecrawl-base-url"
-                    type="text"
-                    value={searchConfig.firecrawl_base_url}
-                    onChange={(e) =>
-                      handleSearchConfigChange(
-                        "firecrawl_base_url",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Enter FireCrawl Base URL"
-                    className="bg-[#35363a] border-[#ffffff0f]"
-                  />
-                </div>
+                {showFirecrawlBaseUrl && (
+                  <div className="space-y-2">
+                    <Label htmlFor="firecrawl-base-url">
+                      FireCrawl Base URL
+                    </Label>
+                    <Input
+                      id="firecrawl-base-url"
+                      type="text"
+                      value={searchConfig.firecrawl_base_url}
+                      onChange={(e) =>
+                        handleSearchConfigChange(
+                          "firecrawl_base_url",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter FireCrawl Base URL"
+                      className="bg-[#35363a] border-[#ffffff0f]"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="serpapi-key">SerpAPI API Key</Label>
