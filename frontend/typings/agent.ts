@@ -177,4 +177,11 @@ export interface LLMConfig {
   vertex_project_id?: string;
   api_type?: string;
   cot_model?: boolean;
+  azure_endpoint?: string;
+  azure_api_version?: string;
+}
+
+export interface IModel {
+  model_name: string;
+  provider: string;
 }

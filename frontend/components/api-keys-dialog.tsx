@@ -24,12 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LLMConfig } from "@/typings/agent";
+import { IModel, LLMConfig } from "@/typings/agent";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PROVIDER_MODELS } from "@/constants/models";
 
 interface ApiKeysDialogProps {
   isOpen: boolean;
@@ -37,155 +38,6 @@ interface ApiKeysDialogProps {
   onOpen: () => void;
   initialTab?: string;
 }
-
-interface IModel {
-  model_name: string;
-  provider: string;
-}
-
-// Define available models for each provider
-const PROVIDER_MODELS: { [key: string]: IModel[] } = {
-  anthropic: [
-    {
-      model_name: "claude-sonnet-4-20250514",
-      provider: "anthropic",
-    },
-    {
-      model_name: "claude-opus-4-20250514",
-      provider: "anthropic",
-    },
-    {
-      model_name: "claude-3-7-sonnet-20250219",
-      provider: "anthropic",
-    },
-  ],
-  openai: [
-    {
-      model_name: "gpt-4-turbo",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4-1106-preview",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-3.5-turbo",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4.1",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4.1-mini",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4.1-nano",
-      provider: "openai",
-    },
-    {
-      model_name: "gpt-4.5",
-      provider: "openai",
-    },
-    {
-      model_name: "o3",
-      provider: "openai",
-    },
-    {
-      model_name: "o3-mini",
-      provider: "openai",
-    },
-    {
-      model_name: "o3-pro",
-      provider: "openai",
-    },
-    {
-      model_name: "o4-mini",
-      provider: "openai",
-    },
-    {
-      model_name: "custom",
-      provider: "openai",
-    },
-  ],
-  gemini: [
-    {
-      model_name: "gemini-pro",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-1.5-pro",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-1.5-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.0-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.0-flash-lite",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.5-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.5-pro",
-      provider: "gemini",
-    },
-  ],
-  vertex: [
-    {
-      model_name: "claude-sonnet-4@20250514",
-      provider: "anthropic",
-    },
-    {
-      model_name: "claude-opus-4@20250514",
-      provider: "anthropic",
-    },
-    {
-      model_name: "claude-3-7-sonnet@20250219",
-      provider: "anthropic",
-    },
-    {
-      model_name: "gemini-pro",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-1.5-pro",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-1.5-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.0-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.0-flash-lite",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.5-flash",
-      provider: "gemini",
-    },
-    {
-      model_name: "gemini-2.5-pro",
-      provider: "gemini",
-    },
-  ],
-};
 
 const isCotModels = ["o3", "o3-mini", "o3-pro", "o4-mini"];
 
@@ -207,7 +59,6 @@ const ApiKeysDialog = ({
     modelKey: string;
     config: LLMConfig;
   } | null>(null);
-  console.log("🚀 ~ editingConfig:", editingConfig);
 
   const [llmConfig, setLlmConfig] = useState<{
     [key: string]: LLMConfig;
@@ -293,27 +144,28 @@ const ApiKeysDialog = ({
 
       if (data.search_config) {
         setSearchConfig({
-          firecrawl_api_key: data.search_config.firecrawl_api_key || "",
-          firecrawl_base_url: data.search_config.firecrawl_base_url || "",
-          serpapi_api_key: data.search_config.serpapi_api_key || "",
-          tavily_api_key: data.search_config.tavily_api_key || "",
-          jina_api_key: data.search_config.jina_api_key || "",
+          firecrawl_api_key: data.search_config.firecrawl_api_key || undefined,
+          firecrawl_base_url:
+            data.search_config.firecrawl_base_url || undefined,
+          serpapi_api_key: data.search_config.serpapi_api_key || undefined,
+          tavily_api_key: data.search_config.tavily_api_key || undefined,
+          jina_api_key: data.search_config.jina_api_key || undefined,
         });
       }
 
       if (data.media_config) {
         setMediaConfig({
-          gcp_project_id: data.media_config.gcp_project_id || "",
-          gcp_location: data.media_config.gcp_location || "",
-          gcs_output_bucket: data.media_config.gcs_output_bucket || "",
+          gcp_project_id: data.media_config.gcp_project_id || undefined,
+          gcp_location: data.media_config.gcp_location || undefined,
+          gcs_output_bucket: data.media_config.gcs_output_bucket || undefined,
         });
       }
 
       if (data.audio_config) {
         setAudioConfig({
-          openai_api_key: data.audio_config.openai_api_key || "",
-          azure_endpoint: data.audio_config.azure_endpoint || "",
-          azure_api_version: data.audio_config.azure_api_version || "",
+          openai_api_key: data.audio_config.openai_api_key || undefined,
+          azure_endpoint: data.audio_config.azure_endpoint || undefined,
+          azure_api_version: data.audio_config.azure_api_version || undefined,
         });
       }
     } catch (error) {
@@ -353,8 +205,8 @@ const ApiKeysDialog = ({
         setLlmConfig({
           ...llmConfig,
           [getModelKey(model)]: {
-            api_key: "",
-            base_url: "",
+            api_key: undefined,
+            base_url: undefined,
             api_type: model.provider,
             model: model.model_name,
             cot_model: isCotModels.some((m) => model.model_name?.includes(m)),
@@ -376,8 +228,8 @@ const ApiKeysDialog = ({
         setLlmConfig({
           ...llmConfig,
           [getModelKey(model)]: {
-            api_key: "",
-            base_url: "",
+            api_key: undefined,
+            base_url: undefined,
             api_type: model.provider,
             model: customModelName,
           },
@@ -478,6 +330,14 @@ const ApiKeysDialog = ({
           PROVIDER_MODELS.vertex.find((m) => m.model_name === modelName)
             ?.provider || "",
       });
+    } else if (provider === "azure") {
+      setSelectedProvider("azure");
+      setSelectedModel({
+        model_name: modelName,
+        provider:
+          PROVIDER_MODELS.azure.find((m) => m.model_name === modelName)
+            ?.provider || "",
+      });
     } else {
       setSelectedProvider(provider);
       setSelectedModel({ model_name: modelName, provider });
@@ -503,8 +363,8 @@ const ApiKeysDialog = ({
     setEditingConfig({
       modelKey: "",
       config: {
-        api_key: "",
-        base_url: "",
+        api_key: undefined,
+        base_url: undefined,
         api_type: "anthropic",
         model: PROVIDER_MODELS.anthropic[0].model_name,
       },
@@ -521,8 +381,8 @@ const ApiKeysDialog = ({
       ...llmConfig,
       [modelKey]: {
         ...(llmConfig[modelKey] || {}),
-        api_key: editingConfig?.config.api_key || "",
-        base_url: editingConfig?.config.base_url || "",
+        api_key: editingConfig?.config.api_key || undefined,
+        base_url: editingConfig?.config.base_url || undefined,
         api_type: selectedModel.provider,
         model:
           selectedModel.model_name === "custom"
@@ -531,8 +391,10 @@ const ApiKeysDialog = ({
         cot_model: isCotModels.some((m) =>
           selectedModel.model_name?.includes(m)
         ),
-        vertex_region: editingConfig?.config.vertex_region || "",
-        vertex_project_id: editingConfig?.config.vertex_project_id || "",
+        vertex_region: editingConfig?.config.vertex_region || undefined,
+        vertex_project_id: editingConfig?.config.vertex_project_id || undefined,
+        azure_endpoint: editingConfig?.config.azure_endpoint || undefined,
+        azure_api_version: editingConfig?.config.azure_api_version || undefined,
       },
     };
 
@@ -938,6 +800,7 @@ const ApiKeysDialog = ({
                   <SelectItem value="openai">OpenAI</SelectItem>
                   <SelectItem value="gemini">Gemini</SelectItem>
                   <SelectItem value="vertex">Vertex AI</SelectItem>
+                  <SelectItem value="azure">Azure</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1179,6 +1042,53 @@ const ApiKeysDialog = ({
                       }
                     }}
                     placeholder="Enter Vertex AI Region (e.g., us-central1)"
+                    className="bg-[#35363a] border-[#ffffff0f]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {selectedProvider === "azure" && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="azure-endpoint">Azure Endpoint</Label>
+                  <Input
+                    id="azure-endpoint"
+                    type="text"
+                    value={editingConfig?.config.azure_endpoint || ""}
+                    onChange={(e) => {
+                      if (editingConfig) {
+                        setEditingConfig({
+                          ...editingConfig,
+                          config: {
+                            ...editingConfig.config,
+                            azure_endpoint: e.target.value,
+                          },
+                        });
+                      }
+                    }}
+                    placeholder="Enter Azure OpenAI endpoint"
+                    className="bg-[#35363a] border-[#ffffff0f]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="azure-api-version">Azure API Version</Label>
+                  <Input
+                    id="azure-api-version"
+                    type="text"
+                    value={editingConfig?.config.azure_api_version || ""}
+                    onChange={(e) => {
+                      if (editingConfig) {
+                        setEditingConfig({
+                          ...editingConfig,
+                          config: {
+                            ...editingConfig.config,
+                            azure_api_version: e.target.value,
+                          },
+                        });
+                      }
+                    }}
+                    placeholder="Enter Azure API version"
                     className="bg-[#35363a] border-[#ffffff0f]"
                   />
                 </div>
