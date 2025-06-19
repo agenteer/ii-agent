@@ -207,6 +207,7 @@ const ApiKeysDialog = ({
     modelKey: string;
     config: LLMConfig;
   } | null>(null);
+  console.log("🚀 ~ editingConfig:", editingConfig);
 
   const [llmConfig, setLlmConfig] = useState<{
     [key: string]: LLMConfig;
@@ -530,6 +531,8 @@ const ApiKeysDialog = ({
         cot_model: isCotModels.some((m) =>
           selectedModel.model_name?.includes(m)
         ),
+        vertex_region: editingConfig?.config.vertex_region || "",
+        vertex_project_id: editingConfig?.config.vertex_project_id || "",
       },
     };
 
