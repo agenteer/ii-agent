@@ -10,10 +10,8 @@ services:
       - ~/.ii_agent/workspace:/app/data/workspace
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://backend:8000
-      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} 
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 
   backend:
@@ -30,5 +28,5 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/google-application-credentials.json
     volumes:
       #If file doesn't exist, use a dummy file
-      - ${GOOGLE_APPLICATION_CREDENTIALS:-.dummy-credentials.json}:/app/google-application-credentials.json
+      - ${GOOGLE_APPLICATION_CREDENTIALS:-docker/.dummy-credentials.json}:/app/google-application-credentials.json
       - ~/.ii_agent:/.ii_agent

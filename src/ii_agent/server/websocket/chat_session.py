@@ -164,6 +164,8 @@ class ChatSession:
             llm_config = settings.llm_configs.get(init_content.model_name)
             if not llm_config:
                 raise ValueError(f"LLM config not found for model: {init_content.model_name}")
+            
+            llm_config.thinking_tokens = init_content.thinking_tokens
             client = get_client(llm_config)
 
             # Create agent using internal methods
