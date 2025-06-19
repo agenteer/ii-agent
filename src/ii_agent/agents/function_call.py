@@ -282,7 +282,7 @@ try breaking down the task into smaller steps. After call this tool to update or
                 )
                 self.message_queue.put_nowait(
                     RealtimeEvent(
-                        type=EventType.AGENT_RESPONSE,
+                        type=EventType.AGENT_THINKING,
                         content={"text": text_result.text},
                     )
                 )
