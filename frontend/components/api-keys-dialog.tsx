@@ -469,6 +469,14 @@ const ApiKeysDialog = ({
       setSelectedProvider("openai");
       setCustomModelName(modelName);
       setSelectedModel({ model_name: "custom", provider: "openai" });
+    } else if (provider === "vertex") {
+      setSelectedProvider("vertex");
+      setSelectedModel({
+        model_name: modelName,
+        provider:
+          PROVIDER_MODELS.vertex.find((m) => m.model_name === modelName)
+            ?.provider || "",
+      });
     } else {
       setSelectedProvider(provider);
       setSelectedModel({ model_name: modelName, provider });
@@ -483,7 +491,6 @@ const ApiKeysDialog = ({
     const newLlmConfig = { ...llmConfig };
     delete newLlmConfig[modelKey];
     setLlmConfig(newLlmConfig);
-    toast.success(`Model configuration deleted`);
   };
 
   // Function to add a new config
@@ -536,7 +543,6 @@ const ApiKeysDialog = ({
 
     setLlmConfig(updatedConfig);
     setIsEditDialogOpen(false);
-    toast.success(`Model configuration saved`);
   };
 
   return (
