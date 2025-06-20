@@ -6,8 +6,8 @@ if [ ! -d "${PWD}/workspace" ]; then
 fi
 
 #BACKEND ENVIRONMENT VARIABLES
-export FRONTEND_PORT=3000
-export BACKEND_PORT=8000
+export FRONTEND_PORT=3001
+export BACKEND_PORT=8001
 export WORKSPACE_PATH=${PWD}/workspace
 
 # Start docker-compose with the HOST_IP variable

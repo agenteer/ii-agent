@@ -92,6 +92,7 @@ const initialState: AppState = {
     audio_generation: true,
     browser: true,
     thinking_tokens: 10000,
+    enable_reviewer: false,
   },
   wsConnectionState: WebSocketConnectionState.CONNECTING,
   selectedModel: AVAILABLE_MODELS[0],
